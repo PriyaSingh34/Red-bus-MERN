@@ -1,37 +1,57 @@
-const { MongoClient } = require("mongodb");
-const { stateData, tripsData, busData } = require("./data");
+const express = require("express");
+const app = express();
+const tripsModel = require("./src/model/TripsSchema");
+const path = require("path");
 
-// MongoDB Atlas connection string
-const uri =
-  "mongodb+srv://priyasingh:Priya@cluster0.kepu1bm.mongodb.net/reserve?retryWrites=true&w=majority";
-const client = new MongoClient(uri);
+// Parse JSON bodies (as sent by API clients)
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-async function insertDataToMongoDB() {
+app.get("/", function (req, res) {
+  res.send("<html><body><h1>WELCOME TO RED BUS</h1></body></html>");
+});
+
+// Displays an array of all subscribers from the database
+app.get("/tripdetails", async (request, response) => {
+  //To retrieve records from a database collection we make use of the .find() function.
+  const busCategory = await tripsModel.find({});
   try {
-    // Connect to the MongoDB Atlas cluster
-    await client.connect();
-    console.log("Connected correctly to server");
-    // Access the "reserve" database and "state_district" collection
-    const db = client.db("reserve");
-    const collection = db.collection("state_district");
-
-    
-    
-    // Insert the data into the collection
-    const result = await db.collection("state_district").insertMany(stateData);
-    console.log(`${result.insertedCount} documents inserted.`);
-
-    const result2 = await db.collection("trips").insertMany(tripsData);
-    console.log(`${result2.insertedCount} documents inserted.`);
-
-    const result3 = await db.collection("bus_owner").insertMany(busData);
-    console.log(`${result3.insertedCount} documents inserted.`);
-    // Close the connection to MongoDB Atlas
-    client.close();
-  } catch (err) {
-    console.error("Error occurred:", err);
+    //Since no parameters have been provided, it will return all of the items in the database.
+    response.send(busCategory);
+  } catch (error) {
+    //send error if route not found
+    response.status(404).send(error);
   }
-}
+});
 
-// Call the function to insert data into MongoDB Atlas
-insertDataToMongoDB();
+// Add new subscriber using postman ir insomnia
+app.post("/tripdetails/add", async (req, res) => {
+  //creating a new subscriber as  subscribel model is defined in model
+  const trip = new tripsModel({
+    busName: req.body.busName,
+    busFare: req.body.busFare,
+    date: req.body.date,
+    date: req.body.date,
+    from: req.body.from,
+    to: req.body.to,
+    busOwnerID: req.body.busOwnerID,
+    startTime: req.body.startTime,
+    EndTime: req.body.EndTime,
+    category: req.body.category,
+    SeatBooked: req.body.SeatBooked,
+    bus_no: req.body.bus_no,
+    animeties_list: req.body.animeties_list,
+    busFare: req.body.busFare,
+    busName: req.body.busName,
+  });
+  try {
+    // use .save() to save it to the database.
+    const newtrip = await trip.save();
+    //response send to the database
+    res.status(201).json({ newtrip });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+module.exports = app;
