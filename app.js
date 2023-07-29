@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const tripsModel = require("./src/model/TripsSchema");
 const addBookingDetails = require("./src/model/addBookingDetails")
-const path = require("path");
+
 
 // Parse JSON bodies (as sent by API clients)
 app.use(express.urlencoded({ extended: false }));
@@ -14,6 +14,51 @@ app.get("/", function (req, res) {
 
 
 
+
+
+app.get("/tripdetails", async (req, res) => {
+  //To retrieve all the records from a database collection we make use of the .find() function.
+  const myData = await tripsModel.find({})
+  .then((myData, err) => {
+    if (!err) {
+      res.json(myData);
+      res.end();
+    }
+  })
+  .catch((err) => {
+    console.error(err.message);
+    res.status(500).send(err);
+  });
+});
+
+
+app.post("/tripdetails/add", async (req, res) => {
+  const {date, from, to, busOwnerID, startTime, EndTime, category,
+  SeatBooked, bus_no, animeties_list, busFare, busName } = req.body;
+  const trip = new tripsModel({
+    
+    date,
+    from,
+    to,
+    busOwnerID,
+    startTime,
+    EndTime,
+    category,
+    SeatBooked,
+    bus_no,
+    animeties_list,
+    busFare,
+    busName,
+  });
+  try {
+    // use .save() to save it to the database.
+    const newtrip = await trip.save();
+    //response send to the database
+    res.status(201).json({ newtrip });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 app.post("/addBookingDetails", (req, res) => {
   const { BusID, Name, Gender, Age, Email, MobileNo, FromDate, Seats } =
@@ -40,28 +85,82 @@ app.post("/addBookingDetails", (req, res) => {
     });
 });
 
-app.get("/fetchBookingDetails", async(req, res) => {
-  // const { BusID, FromDate } = req.query;
-  addBookingDetails.find({})
-    .then((data, err) => {
-      if (!err) {
-        res.json(data);
-        res.end();
-      }
-    })
-    .catch((err) => {
-      console.error(err.message);
-      res.status(500).send(err);
-    });
-});
 
-// Displays an array of all trips from the database//////////////////////
 app.get("/tripdetails", async (req, res) => {
   //To retrieve records from a database collection we make use of the .find() function.
-  tripsModel.find({})
-  .then((data, err) => {
+   const date = req.query;
+  const myData = await tripsModel.find(date)
+  // console.log(req.query)
+  .then((myData, err) => {
     if (!err) {
-      res.json(data);
+      res.json(myData);
+      res.end();
+    }
+  })
+  .catch((err) => {
+    console.error(err.message);
+    res.status(500).send(err);
+  });
+});
+
+app.get("/tripdetails", async (req, res) => {
+  //To retrieve records from a database collection we make use of the .find() function.
+   const {date,from,to,busOwnerID,startTime,EndTime,category,SeatBooked,bus_no,animeties_list,busFare,busName} = req.query;
+  const queryObject = {};
+
+  if(date){
+    queryObject.date=date;
+  }
+
+  if(from){
+    queryObject.from=from;
+  }
+
+  if(to){
+    queryObject.to=to;
+  }
+
+  if(busOwnerID){
+    queryObject.busOwnerID=busOwnerID;
+  }
+
+  if(startTime){
+    queryObject.startTime=startTime;
+  }
+
+  if(EndTime){
+    queryObject.EndTime=EndTime;
+  }
+
+  if(category){
+    queryObject.category=category;
+  }
+
+  if(SeatBooked){
+    queryObject.SeatBooked=SeatBooked;
+  }
+
+  if(bus_no){
+    queryObject.bus_no=bus_no;
+  }
+
+  if(animeties_list){
+    queryObject.animeties_list=animeties_list;
+  }
+
+  if(busFare){
+    queryObject.busFare=busFare;
+  }
+
+  if(busName){
+    queryObject.busName=busName;
+  }
+
+   const myData = await tripsModel.find(queryObject)
+  console.log(queryObject)
+  .then((myData, err) => {
+    if (!err) {
+      res.json(myData);
       res.end();
     }
   })
@@ -72,34 +171,19 @@ app.get("/tripdetails", async (req, res) => {
 });
 
 
-// Add new subscriber using postman ir insomnia
-app.post("/tripdetails/add", async (req, res) => {
-  const {date, from, to, busOwnerID, startTime, EndTime, category,
-  SeatBooked, bus_no, animeties_list, busFare, busName } = req.body;
-  //creating a new subscriber as  subscribel model is defined in model
-  const trip = new tripsModel({
-    
-    date,
-    from,
-    to,
-    busOwnerID,
-    startTime,
-    EndTime,
-    category,
-    SeatBooked,
-    bus_no,
-    animeties_list,
-    busFare,
-    busName,
-  });
-  try {
-    // use .save() to save it to the database.
-    const newtrip = await trip.save();
-    //response send to the database
-    res.status(201).json({ newtrip });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = app;
