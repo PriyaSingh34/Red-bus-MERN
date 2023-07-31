@@ -85,8 +85,23 @@ app.post("/addBookingDetails", (req, res) => {
     });
 });
 
+app.get("/fetchBookingDetails", async(req, res) => {
+  // const { BusID, FromDate } = req.query;
+  addBookingDetails.find({})
+    .then((data, err) => {
+      if (!err) {
+        res.json(data);
+        res.end();
+      }
+    })
+    .catch((err) => {
+      console.error(err.message);
+      res.status(500).send(err);
+    });
+});
 
-app.get("/tripdetails", async (req, res) => {
+
+app.get("/tripdetailsbydate", async (req, res) => {
   //To retrieve records from a database collection we make use of the .find() function.
    const date = req.query;
   const myData = await tripsModel.find(date)

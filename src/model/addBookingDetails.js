@@ -4,35 +4,35 @@ const mongoose = require('mongoose');
 const addUserDetailsSchema = new mongoose.Schema({
     BusID: {
         type: String,
-        required: true,
+        required: true
     },
     Name: {
         type: String,
-        required: true,
+        required: true
     },
     Gender:{
         type: String,
-        required: true,
+        required: true
     },
     Age: {
         type: Number,
-        required: true,
+        required: true
     },
     Email: {
         type: String,
-        required: true,
+        required: true
     },
     MobileNo: {
-        type: String,
-        required: true,
+        type: Number,
+        required: true
     },
     FromDate: {
         type: Date,
-        required: true,
+        required: true
     },
     Seats: {
         type: Array,
-        required: true,
+        required: true
     },
 })
 
